@@ -91,7 +91,7 @@ int main(){
             int sx,sy,tx,ty;
             cin>>sx>>sy>>tx>>ty;
             vector<vector<int>> distance = bfs(n,m,grid,sx,sy,tx,ty);
-            cout<<"Shortest Distance from ("<<sx<<","<<sy<<")"<<" is : "<<distance[tx][ty]-1<<endl;
+            cout<<"Shortest Distance from ("<<sx<<","<<sy<<")"<<" is : "<<distance[tx][ty]<<endl;
             cin>>input;
         }
         else if(input == 'A'){
