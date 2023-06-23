@@ -15,6 +15,8 @@ start to research GPU algorithms for your ui-route implementation
 
 */
 int main() {
+   unsigned seed = time(0);
+   srand(seed);
    int t = 1;
    cout<<t<<"\n";
    while (t--)
@@ -27,8 +29,8 @@ int main() {
       vector<pair<long long,long long>>blockage;
       deque<pair<long long,long long>>block;
       deque<pair<long long,long long>>unblock;
-      for(int i=1;i<=n;i++){
-         for(int j=1;j<=m;j++){
+      for(int i=0;i<n;i++){
+         for(int j=0;j<m;j++){
             blockage.push_back(make_pair(i,j));
          }
       }
