@@ -88,35 +88,23 @@ __global__ std::vector<std::vector<int>> satelliteTable(std::string direction,in
                 }
             }
         }
-        // for(int i=1;i<=n;i++){
-        //     previous_breaking_node = 1;
-        //     for(int j=1;j<=m+1;j++){
-        //         if(horizontalBreaking("->",i,j,n,m,grid)){
-        //             satellite_table[i][j] = previous_breaking_node;
-        //             previous_breaking_node = j;
-        //         }
-        //         else if(grid[i][j] == 'B' && grid[i][j-1] == 'U'){
-        //             satellite_table[i][j] = previous_breaking_node;
-        //         }
-        //         else if(grid[i][j] == 'U' && grid[i][j-1] == 'B'){
-        //             previous_breaking_node = j;
-        //         }
-        //     }
-        // }
     }
     else if(direction == "<-"){
-        for(int i=1;i<=n;i++){
+        idx = threadIdx.x+blockDim.x*blockIdx.x; // create thread x index
+        idy = threadIdx.y+blockDim.y*blockIdx.y; // create thread y index
+        idy = m+2-1-idy;
+        if(idx<=n){
             previous_breaking_node = m;
-            for(int j=m;j>=0;j--){
-                if(horizontalBreaking("<-",i,j,n,m,grid)){
-                    satellite_table[i][j] = previous_breaking_node;
-                    previous_breaking_node = j;
+            if(idy<m+2){
+                if(horizontalBreaking("<-",idx,idy,n,m,grid)){
+                    satellite_table[idx][idy] = previous_breaking_node;
+                    previous_breaking_node = idy;
                 }
-                else if(grid[i][j] == 'B' && grid[i][j+1] == 'U'){
-                    satellite_table[i][j] = previous_breaking_node;
+                else if(grid[idx][idy] == 'B' && grid[idx][idy+1] == 'U'){
+                    satellite_table[idx][idy] = previous_breaking_node;
                 }
-                else if(grid[i][j] == 'U' && grid[i][j+1] == 'B'){
-                    previous_breaking_node = j;
+                else if(grid[idx][idy] == 'U' && grid[idx][idy+1] == 'B'){
+                    previous_breaking_node = idy;
                 }
             }
         }
@@ -213,7 +201,12 @@ int main(){
         dim3 grid(n, n);  // dim3 variable holds 3 dimensions
         dim3 block((m+2+block.x-1)/block.x, (m+2+block.y-1)/block.y);
         std::vector<std::vector<int>>satellite_horizontal_right = satelliteTable<<<grid, block>>>("->", n, m, matrix, satellite_table);
+        std::vector<std::vector<int>>satellite_horizontal_left = initializeVectorOfVectors(n,m,-1);
+        std::vector<std::vector<int>>successor_horizontal_right = initializeVectorOfVectors(n,m,-1);
+        std::vector<std::vector<int>>successor_horizontal_left =  initializeVectorOfVectors(n,m,-1);
         cudaCheckErrors("kernel launch failure");
+        cudaMemcpy(satellite_horizontal_right, satellite_table, n*m+2*sizeof(int), cudaMemcpyDeviceToHost);
+        print(n,m,satellite_horizontal_right,satellite_horizontal_left,successor_horizontal_right,successor_horizontal_left);
 
         /* Initializing satellite vector*/
         // std::vector<std::vector<int>>satellite_horizontal_right = satelliteTable("->",n,m,&matrix);
